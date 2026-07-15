@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>合作伙伴墙—工业软件品牌展厅</title>
+  <meta name="description" content="合作伙伴墙—工业软件品牌展厅，俯视浏览工业软件合作伙伴、软件介绍、案例资料与演示视频。">
+  <style>
+    :root {
+      --bg: #040b16;
+      --panel: #0d1b31;
+      --panel2: #102b4e;
+      --ink: #f2f8ff;
+      --muted: #8fb0dc;
+      --rule: #28517f;
+      --accent: #70b4ff;
+      --accent2: #b8ccff;
+      --gold: #f7c873;
+      --cyan: #53e0ff;
+      --shadow: rgba(0, 0, 0, .35);
+    }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: var(--bg); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 14% 8%, rgba(86, 161, 255, .28), transparent 26rem),
+        radial-gradient(circle at 82% 16%, rgba(83, 224, 255, .18), transparent 28rem),
+        radial-gradient(circle at 50% 92%, rgba(247, 200, 115, .10), transparent 30rem),
+        linear-gradient(180deg, #081327 0%, #040b16 68%, #020711 100%);
+      padding: 16px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(120deg, transparent 0 42%, rgba(112, 180, 255, .08) 48%, transparent 54%),
+        radial-gradient(circle at 50% 0%, rgba(255,255,255,.08), transparent 34rem);
+      opacity: .9;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+
+    .showroom {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      min-height: calc(100vh - 32px);
+      border: 1px solid rgba(112, 180, 255, .42);
+      border-radius: 42px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(81, 146, 255, .18), transparent 36rem),
+        linear-gradient(180deg, rgba(16, 36, 63, .92), rgba(6, 16, 31, .97));
+      box-shadow:
+        0 34px 110px rgba(0, 0, 0, .48),
+        inset 0 0 0 1px rgba(255, 255, 255, .03),
+        inset 0 0 80px rgba(70, 137, 255, .08);
+      padding: clamp(20px, 4vw, 42px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .showroom::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(90deg, rgba(106, 167, 255, .08) 1px, transparent 1px),
+        linear-gradient(rgba(106, 167, 255, .07) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+      pointer-events: none;
+    }
+
+    .showroom::after {
+      content: "";
+      position: absolute;
+      left: 7%;
+      right: 7%;
+      top: 82px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(112, 180, 255, .65), transparent);
+      box-shadow: 0 0 28px rgba(112, 180, 255, .55);
+      pointer-events: none;
+    }
+
+    .header {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 22px;
+      padding: 4px 16px 30px;
+      letter-spacing: .24em;
+      color: var(--accent2);
+      font-size: clamp(16px, 2.4vw, 24px);
+      font-weight: 800;
+      text-align: center;
+      text-shadow: 0 0 22px rgba(112, 180, 255, .28);
+    }
+
+    .header > span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+    }
+
+    .header span:first-child {
+      color: #7ba6ff;
+      background: linear-gradient(90deg, #6f94ff, #79ddff);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .header .divider {
+      color: rgba(184, 204, 255, .72);
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+
+    #wallName {
+      color: #e9f2ff;
+      padding: 5px 16px;
+      border: 1px solid rgba(112, 180, 255, .24);
+      border-radius: 999px;
+      background: rgba(8, 23, 42, .36);
+      box-shadow: inset 0 0 18px rgba(112, 180, 255, .07);
+    }
+
+    .floorplan {
+      position: relative;
+      padding: 34px 0 96px;
+    }
+
+    .wall-grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      z-index: 1;
+    }
+
+    .zone-card {
+      position: relative;
+      min-height: 166px;
+      border: 1px solid color-mix(in srgb, var(--zone, var(--accent)) 62%, rgba(40, 81, 127, .75));
+      border-radius: 22px;
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--zone, var(--accent)) 17%, transparent), transparent 34%),
+        radial-gradient(circle at 52% 0%, color-mix(in srgb, var(--zone, var(--accent)) 28%, transparent), transparent 58%),
+        rgba(14, 29, 53, .86);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, .035),
+        inset 0 -36px 70px rgba(0, 0, 0, .16),
+        0 18px 44px rgba(0, 0, 0, .24);
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+      transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease;
+    }
+
+    .zone-card:hover {
+      transform: translateY(-4px);
+      border-color: color-mix(in srgb, var(--zone, var(--accent)) 88%, #ffffff);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, .05),
+        0 22px 52px rgba(0, 0, 0, .34),
+        0 0 34px color-mix(in srgb, var(--zone, var(--accent)) 22%, transparent);
+    }
+
+    .zone-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 0 35%, rgba(255,255,255,.08) 45%, transparent 58%);
+      transform: translateX(-110%);
+      transition: transform .7s ease;
+      pointer-events: none;
+    }
+
+    .zone-card:hover::before { transform: translateX(110%); }
+
+    .zone-card::after {
+      content: "";
+      position: absolute;
+      inset: 11px;
+      border: 1px solid rgba(106, 167, 255, .08);
+      border-radius: 16px;
+      pointer-events: none;
+    }
+
+    .zone-main {
+      width: 100%;
+      height: 100%;
+      min-height: 166px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 12px;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      padding: 28px 22px 22px;
+    }
+
+    .zone-main:hover .icon {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 0 34px color-mix(in srgb, var(--zone, var(--accent)) 42%, transparent);
+    }
+
+    .icon {
+      display: grid;
+      place-items: center;
+      width: 62px;
+      height: 62px;
+      border: 1px solid color-mix(in srgb, var(--zone, var(--accent)) 70%, var(--rule));
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--zone, var(--accent)) 22%, rgba(13, 29, 51, .9));
+      font-size: 26px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+      transition: .2s ease;
+    }
+
+    .logo-img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      border: 1px solid color-mix(in srgb, var(--zone, var(--accent)) 70%, var(--rule));
+      border-radius: 18px;
+      background: #ffffff;
+      padding: 5px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.45);
+      transition: .2s ease;
+    }
+
+    .zone-main:hover .logo-img {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 0 34px color-mix(in srgb, var(--zone, var(--accent)) 42%, transparent);
+    }
+
+    .zone-main strong {
+      font-size: clamp(17px, 1.9vw, 21px);
+      letter-spacing: -.02em;
+      text-shadow: 0 0 16px rgba(255,255,255,.13);
+    }
+
+    .zone-main small {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .zone-main small em {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--zone, var(--accent)) 70%, var(--muted));
+      opacity: .8;
+    }
+
+    .share-pill {
+      position: absolute;
+      right: 14px;
+      top: 12px;
+      z-index: 3;
+      border: 1px solid color-mix(in srgb, var(--zone, var(--accent)) 62%, var(--rule));
+      border-radius: 999px;
+      color: var(--ink);
+      background: rgba(4, 10, 20, .72);
+      padding: 7px 14px;
+      cursor: pointer;
+      transition: .2s ease;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+
+    .share-pill:hover {
+      transform: translateY(-1px);
+      background: color-mix(in srgb, var(--zone, var(--accent)) 18%, rgba(5, 12, 24, .75));
+    }
+
+    .placeholder {
+      display: grid;
+      place-items: center;
+      text-align: center;
+      border-style: dashed;
+      color: #abc7ee;
+      background:
+        radial-gradient(circle at 50% 44%, rgba(112, 180, 255, .16), transparent 6rem),
+        rgba(5, 12, 24, .45);
+    }
+
+    .placeholder .spark {
+      font-size: 38px;
+      color: rgba(112, 180, 255, .42);
+      margin-bottom: 10px;
+    }
+
+    .placeholder-main { cursor: pointer; }
+
+    .entrance {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 32px;
+      height: 76px;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(112, 180, 255, .14), transparent 18rem),
+        repeating-linear-gradient(90deg, rgba(106, 167, 255, .22) 0, rgba(106, 167, 255, .22) 2px, transparent 2px, transparent 13px),
+        rgba(8, 23, 42, .92);
+      display: grid;
+      place-items: center;
+      box-shadow: inset 0 0 34px rgba(112, 180, 255, .10);
+    }
+
+    .entrance span {
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      background: rgba(15, 37, 67, .95);
+      padding: 8px 52px;
+      color: #dcecff;
+      letter-spacing: .42em;
+      font-weight: 700;
+      box-shadow: 0 0 24px rgba(112, 180, 255, .16);
+    }
+
+    .bottom-bar {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      border: 1px solid rgba(112, 180, 255, .55);
+      border-radius: 999px;
+      background:
+        linear-gradient(135deg, rgba(25, 76, 132, .82), rgba(12, 34, 62, .88));
+      padding: 15px 22px;
+      color: #e8f3ff;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 0 34px rgba(106, 167, 255, .22), inset 0 0 0 1px rgba(255,255,255,.04);
+      transition: .2s ease;
+    }
+
+    .bottom-bar:hover {
+      border-color: var(--accent);
+      background: rgba(36, 83, 139, .88);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: rgba(0, 0, 0, .68);
+      backdrop-filter: blur(8px);
+      z-index: 20;
+      padding: 20px;
+    }
+
+    .modal.active { display: grid; }
+
+    .dialog {
+      width: min(680px, 100%);
+      max-height: 88vh;
+      overflow: auto;
+      border: 1px solid var(--rule);
+      border-radius: 24px;
+      background: #0b182c;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, .5);
+      padding: 24px;
+    }
+
+    .dialog-head {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .modal-icon {
+      display: grid;
+      place-items: center;
+      width: 62px;
+      height: 62px;
+      border: 1px solid var(--accent);
+      border-radius: 16px;
+      background: #132947;
+      font-size: 28px;
+    }
+
+    .modal-logo {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: #fff;
+      padding: 3px;
+    }
+
+    .dialog h2 { margin: 0 0 4px; font-size: 24px; }
+    .dialog p { color: var(--muted); line-height: 1.75; }
+    .meta { color: #9dbcf0; font-size: 14px; }
+
+    .close {
+      border: 1px solid var(--rule);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      background: rgba(255,255,255,.04);
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 22px;
+    }
+
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .resource-link {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px 12px;
+      align-items: center;
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      padding: 14px;
+      background: rgba(13, 31, 55, .72);
+    }
+
+    .resource-link:hover { border-color: var(--accent); }
+    .resource-link span { grid-row: span 2; font-size: 22px; }
+    .resource-link small { color: var(--muted); }
+
+    .share-box {
+      border-top: 1px dashed var(--rule);
+      padding-top: 18px;
+      margin-top: 8px;
+    }
+
+    .share-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .share-row input {
+      min-width: 0;
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      background: #07111f;
+      color: var(--ink);
+      padding: 12px;
+    }
+
+    .primary-btn {
+      border: 0;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #4f8fff, #74d7ff);
+      color: #06101e;
+      font-weight: 700;
+      padding: 0 16px;
+      cursor: pointer;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      color: #b7d5ff;
+      font-size: 14px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      background: #07111f;
+      color: var(--ink);
+      padding: 12px;
+      resize: vertical;
+    }
+
+    .qr-box {
+      display: grid;
+      place-items: center;
+      gap: 14px;
+      text-align: center;
+    }
+
+    .qr-box img {
+      width: min(320px, 82vw);
+      border-radius: 18px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translate(-50%, 80px);
+      opacity: 0;
+      transition: .25s ease;
+      z-index: 30;
+      border: 1px solid var(--accent);
+      background: #0b182c;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 12px 18px;
+    }
+
+    .toast.show {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+
+    @media (max-width: 860px) {
+      body { padding: 10px; }
+      .showroom { border-radius: 24px; padding: 18px; }
+      .header { letter-spacing: .12em; gap: 10px; }
+      .wall-grid { grid-template-columns: 1fr; }
+      .floorplan { padding-bottom: 98px; }
+      .zone-card, .zone-main { min-height: 138px; }
+      .resource-grid { grid-template-columns: 1fr; }
+      .bottom-bar { border-radius: 20px; flex-direction: column; gap: 4px; }
+      .entrance span { padding-inline: 24px; letter-spacing: .2em; }
+      .share-row { grid-template-columns: 1fr; }
+      .primary-btn { padding: 12px 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="showroom">
+    <header class="header">
+      <span>🏭 <span id="channelPrefix">工业软件</span> <span id="channelSeparator">·</span> <span id="channelSuffix">品牌展厅</span></span>
+      <span class="divider">|</span>
+      <span id="wallName">合作伙伴墙</span>
+    </header>
+
+    <section class="floorplan" aria-label="合作伙伴墙俯视图">
+      <div class="wall-grid" id="partnerWall"></div>
+      <div class="entrance"><span>↓ 入口 ENTRANCE ↓</span></div>
+    </section>
+
+    <div class="bottom-bar" id="receptionButton" role="button" tabindex="0">
+      <span>💁</span>
+      <span id="receptionText">接待台 / 咨询处 · 欢迎莅临指导</span>
+    </div>
+  </main>
+
+  <section class="modal" id="modal" aria-label="品牌详情弹窗">
+    <div class="dialog">
+      <div class="dialog-head">
+        <div class="modal-icon" id="modalIcon">📊</div>
+        <div>
+          <h2 id="modalTitle">品牌区域</h2>
+          <div class="meta"><span id="modalBrand"></span> · <span id="modalCategory"></span></div>
+        </div>
+        <button class="close" type="button" onclick="closeModal()">×</button>
+      </div>
+
+      <p id="modalDesc"></p>
+      <div class="resource-grid" id="modalLinks"></div>
+
+      <div class="share-box">
+        <strong>分享</strong>
+        <div class="share-row">
+          <input id="shareInput" type="text" readonly>
+          <button class="primary-btn" type="button" onclick="copyCurrentShare()">复制分享链接</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="modal" id="applyModal" aria-label="合作伙伴申请窗口">
+    <div class="dialog">
+      <div class="dialog-head">
+        <div class="modal-icon">✦</div>
+        <div>
+          <h2>合作伙伴申请</h2>
+          <div class="meta">请填写信息，后台可查看申请记录</div>
+        </div>
+        <button class="close" type="button" onclick="closeApplyModal()">×</button>
+      </div>
+      <form id="applyForm">
+        <div class="form-grid">
+          <label class="field">公司名称<input name="company" required></label>
+          <label class="field">联系人<input name="contact" required></label>
+          <label class="field">联系电话<input name="phone" required></label>
+          <label class="field">微信<input name="wechat"></label>
+          <label class="field">职务<input name="title"></label>
+          <label class="field full">需求<textarea name="demand" rows="4"></textarea></label>
+        </div>
+        <div class="share-row" style="margin-top:16px">
+          <span></span>
+          <button class="primary-btn" type="submit">提交申请</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="modal" id="qrModal" aria-label="接待台微信二维码">
+    <div class="dialog qr-box">
+      <button class="close" type="button" onclick="closeQrModal()" style="justify-self:end">×</button>
+      <h2>扫码联系接待台 / 咨询处</h2>
+      <img id="qrImage" src="assets/wechat-qr.jpg" alt="微信二维码">
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="assets/data.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

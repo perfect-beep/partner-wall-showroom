@@ -1,0 +1,13 @@
+{
+  "name": "partner-wall-showroom",
+  "version": "1.0.0",
+  "private": true,
+  "description": "合作伙伴墙—工业软件品牌展厅，支持 Vercel 云端统一统计和数据下载。",
+  "scripts": {
+    "start": "vercel dev",
+    "check": "node --check api/kv.js && node --check api/config.js && node --check api/applications.js && node --check api/track.js && node --check api/stats.js && node --check api/export.js && node --check assets/app.js && node --check assets/data.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

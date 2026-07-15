@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>后台管理—合作伙伴墙</title>
+  <style>
+    :root { --bg:#07111f; --panel:#0e1c31; --panel2:#132947; --ink:#eff7ff; --muted:#88a4c9; --rule:#244772; --accent:#6aa7ff; --good:#72e0d5; --danger:#ff7aa8; }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; color:var(--ink); background:linear-gradient(180deg,#07111f,#050b14); padding:22px; }
+    a { color:inherit; text-decoration:none; } button,input,textarea,select { font:inherit; }
+    .page { width:min(1240px,100%); margin:0 auto; }
+    .topbar { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px; }
+    h1 { margin:0; font-size:32px; } .sub { color:var(--muted); margin-top:8px; }
+    .tabs { display:flex; gap:10px; flex-wrap:wrap; margin:18px 0; }
+    .tab,.btn { border:1px solid var(--rule); border-radius:999px; background:rgba(19,41,71,.82); color:var(--ink); padding:10px 14px; cursor:pointer; }
+    .tab.active,.btn.primary { border-color:var(--accent); background:linear-gradient(135deg,#3f7fff,#74d7ff); color:#06101e; font-weight:800; }
+    .btn.danger { border-color:var(--danger); color:#ffd6e2; }
+    .panel { display:none; border:1px solid var(--rule); border-radius:20px; background:rgba(14,28,49,.9); padding:20px; margin-bottom:18px; }
+    .panel.active { display:block; }
+    .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+    .grid.three { grid-template-columns:repeat(3,1fr); }
+    .field { display:grid; gap:6px; color:#b7d5ff; font-size:14px; }
+    .field.full { grid-column:1/-1; }
+    input,textarea,select { width:100%; border:1px solid var(--rule); border-radius:12px; background:#07111f; color:var(--ink); padding:11px; }
+    textarea { resize:vertical; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .brand-list { display:grid; grid-template-columns:300px 1fr; gap:18px; align-items:start; }
+    .list { border:1px solid var(--rule); border-radius:16px; overflow:hidden; }
+    .brand-item { width:100%; text-align:left; border:0; border-bottom:1px solid var(--rule); background:#0b1a30; color:var(--ink); padding:12px; cursor:pointer; }
+    .brand-item.active { background:#173860; }
+    .link-row { display:grid; grid-template-columns:1fr 1fr 2fr; gap:10px; margin-bottom:10px; }
+    .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:18px; }
+    .card { border:1px solid var(--rule); border-radius:16px; background:#0b1a30; padding:16px; }
+    .card strong { display:block; font-size:30px; color:var(--accent); }
+    .card span { color:var(--muted); font-size:14px; }
+    .table-wrap { overflow:auto; border:1px solid var(--rule); border-radius:16px; }
+    table { width:100%; border-collapse:collapse; min-width:900px; }
+    th,td { padding:12px 14px; border-bottom:1px solid rgba(36,71,114,.72); text-align:left; vertical-align:top; }
+    th { background:#132947; color:#b7d5ff; font-size:13px; } td { color:var(--muted); } td b { color:var(--ink); }
+    .num { color:var(--good); font-weight:800; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .notice { border:1px dashed var(--rule); border-radius:14px; padding:12px 14px; color:var(--muted); margin-bottom:14px; line-height:1.7; }
+    .preview-img { max-width:86px; max-height:86px; border-radius:12px; background:#fff; padding:4px; }
+    .toast { position:fixed; left:50%; bottom:26px; transform:translate(-50%,80px); opacity:0; transition:.25s; border:1px solid var(--accent); background:#0b182c; color:var(--ink); border-radius:999px; padding:12px 18px; }
+    .toast.show { transform:translate(-50%,0); opacity:1; }
+    @media (max-width:900px){ body{padding:12px}.topbar,.brand-list{grid-template-columns:1fr;display:grid}.grid,.grid.three,.cards{grid-template-columns:1fr}.link-row{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div><h1>后台管理</h1><div class="sub">合作伙伴墙—工业软件品牌展厅</div></div>
+      <div class="actions"><a class="btn" href="index.html">返回前台</a><button class="btn primary" onclick="saveConfig()">保存品牌墙配置</button></div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="content">品牌墙管理</button>
+      <button class="tab" data-tab="applications">申请信息</button>
+      <button class="tab" data-tab="stats">数据统计</button>
+    </nav>
+
+    <section class="panel active" id="content">
+      <div class="notice" id="configNotice">正在读取云端配置。未配置 KV 时，会使用本地默认配置。</div>
+      <h2>基础信息</h2>
+      <div class="grid three">
+        <label class="field">频道前缀<input id="channelPrefix"></label>
+        <label class="field">中间符号<input id="channelSeparator"></label>
+        <label class="field">频道后缀<input id="channelSuffix"></label>
+        <label class="field">品牌墙名称<input id="wallName"></label>
+        <label class="field full">接待台文字<input id="receptionText"></label>
+        <label class="field">微信二维码地址<input id="receptionQr"></label>
+        <label class="field">上传/更换微信二维码<input id="qrUpload" type="file" accept="image/*"></label>
+        <div class="field"><span>当前二维码</span><img class="preview-img" id="qrPreview" src="assets/wechat-qr.jpg" alt="二维码"></div>
+      </div>
+
+      <h2>品牌管理</h2>
+      <div class="brand-list">
+        <div>
+          <div class="actions"><button class="btn primary" onclick="addBrand()">新增品牌</button><button class="btn danger" onclick="deleteBrand()">删除当前品牌</button></div>
+          <div class="list" id="brandList"></div>
+        </div>
+        <div>
+          <div class="grid">
+            <label class="field">品牌区域ID<input id="brandId"></label>
+            <label class="field">展示名称<input id="brandName"></label>
+            <label class="field">品牌名<input id="brandBrand"></label>
+            <label class="field">分类/简介短句<input id="brandCategory"></label>
+            <label class="field">图标文字<input id="brandIcon"></label>
+            <label class="field">主题颜色<input id="brandColor" type="color"></label>
+            <label class="field full">Logo地址<input id="brandLogo"></label>
+            <label class="field">上传/更换Logo<input id="logoUpload" type="file" accept="image/*"></label>
+            <div class="field"><span>Logo预览</span><img class="preview-img" id="logoPreview" alt="Logo预览"></div>
+            <label class="field full">品牌介绍<textarea id="brandDesc" rows="4"></textarea></label>
+          </div>
+          <h3>资料按钮（顺序已固定）</h3>
+          <div id="linkEditor"></div>
+          <div class="actions"><button class="btn primary" onclick="applyBrandForm()">应用到当前品牌</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="applications">
+      <div class="actions"><button class="btn" onclick="loadApplications()">刷新申请信息</button><button class="btn" onclick="downloadApplications()">下载申请CSV</button></div>
+      <div class="table-wrap"><table><thead><tr><th>提交时间</th><th>公司名称</th><th>联系人</th><th>联系电话</th><th>微信</th><th>职务</th><th>需求</th></tr></thead><tbody id="applicationRows"></tbody></table></div>
+    </section>
+
+    <section class="panel" id="stats">
+      <div class="notice" id="modeNotice">正在读取云端统一统计数据。</div>
+      <div class="actions"><button class="btn" onclick="refreshStats()">刷新数据</button><button class="btn" onclick="exportData('json')">下载JSON</button><button class="btn" onclick="exportData('csv')">下载CSV</button></div>
+      <div class="cards" id="summary"></div>
+      <div class="table-wrap"><table><thead><tr><th>品牌区域</th><th>软件品牌</th><th>区域浏览点击数</th><th>区域访问人数</th><th>分享链接打开次数</th><th>分享触达人数</th><th>最后访问</th></tr></thead><tbody id="zoneRows"></tbody></table></div>
+      <h2>分享链接明细</h2>
+      <div class="table-wrap"><table><thead><tr><th>分享链接ID</th><th>对应品牌区域</th><th>点击数</th><th>人数</th><th>生成时间</th><th>最后打开</th><th>操作</th></tr></thead><tbody id="shareRows"></tbody></table></div>
+    </section>
+  </main>
+  <div class="toast" id="toast"></div>
+
+  <script src="assets/data.js"></script>
+  <script>
+    const STORAGE_KEY = "partner_wall_stats_v1";
+    const CONFIG_CACHE_KEY = "partner_wall_config_cache_v1";
+    const APPLY_LOCAL_KEY = "partner_wall_applications_local_v1";
+    const ORDERED_LINKS = [
+      ["产品演示视频", "产品演示视频", "▶"],
+      ["案例视频", "案例视频", "🎬"],
+      ["简介/案例PDF", "下载简介/案例PDF", "📄"],
+      ["官网", "访问官网", "🌐"]
+    ];
+    let config = JSON.parse(JSON.stringify(DEFAULT_WALL_CONFIG));
+    let selectedIndex = 0;
+    let currentMode = "local";
+
+    function toast(msg){ const el=document.getElementById("toast"); el.textContent=msg; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2200); }
+    function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+    function zoneById(id){ return (config.brands||[]).find(z=>z.id===id); }
+    function formatTime(v){ return v ? new Date(v).toLocaleString("zh-CN",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}) : "—"; }
+    function peopleCount(list){ return Array.isArray(list) ? list.length : 0; }
+
+    document.querySelectorAll(".tab").forEach(btn=>btn.onclick=()=>{ document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active")); btn.classList.add("active"); document.getElementById(btn.dataset.tab).classList.add("active"); if(btn.dataset.tab==="applications") loadApplications(); if(btn.dataset.tab==="stats") refreshStats(); });
+
+    async function loadConfig(){
+      try{
+        const res=await fetch("/api/config",{cache:"no-store"}); const payload=await res.json();
+        if(payload.ok && payload.data){ config=payload.data; localStorage.setItem(CONFIG_CACHE_KEY,JSON.stringify(config)); document.getElementById("configNotice").textContent="当前正在编辑云端品牌墙配置。"; }
+        else { const cached=localStorage.getItem(CONFIG_CACHE_KEY); if(cached) config=JSON.parse(cached); document.getElementById("configNotice").textContent="当前使用默认/本地配置。保存到云端需要先在 Vercel 配置 KV。"; }
+      }catch(e){ const cached=localStorage.getItem(CONFIG_CACHE_KEY); if(cached) config=JSON.parse(cached); document.getElementById("configNotice").textContent="云端配置暂不可用，当前使用本地配置。"; }
+      renderConfig();
+    }
+
+    function renderConfig(){
+      channelPrefix.value=config.channelPrefix||""; channelSeparator.value=config.channelSeparator||"·"; channelSuffix.value=config.channelSuffix||""; wallName.value=config.wallName||""; receptionText.value=config.receptionText||""; receptionQr.value=config.receptionQr||""; qrPreview.src=config.receptionQr||"assets/wechat-qr.jpg";
+      renderBrandList(); renderBrandForm();
+    }
+    function collectBase(){ config.channelPrefix=channelPrefix.value; config.channelSeparator=channelSeparator.value; config.channelSuffix=channelSuffix.value; config.wallName=wallName.value; config.receptionText=receptionText.value; config.receptionQr=receptionQr.value; }
+    function renderBrandList(){ const list=document.getElementById("brandList"); list.innerHTML=(config.brands||[]).map((b,i)=>`<button class="brand-item ${i===selectedIndex?"active":""}" onclick="selectBrand(${i})"><b>${b.name}</b><br><small>${b.category||""}</small></button>`).join(""); }
+    function selectBrand(i){ selectedIndex=i; renderBrandList(); renderBrandForm(); }
+    function currentBrand(){ if(!config.brands) config.brands=[]; return config.brands[selectedIndex]; }
+    function normalizeLinks(links=[]){ return ORDERED_LINKS.map((meta,i)=>({ type:meta[0], label:(links[i]&&links[i].label)||meta[1], icon:(links[i]&&links[i].icon)||meta[2], url:(links[i]&&links[i].url)||"" })); }
+    function renderBrandForm(){ const b=currentBrand(); if(!b) return; brandId.value=b.id||""; brandName.value=b.name||""; brandBrand.value=b.brand||""; brandCategory.value=b.category||""; brandIcon.value=b.icon||""; brandColor.value=b.color||"#5aa7ff"; brandLogo.value=b.logo||""; logoPreview.src=b.logo||""; brandDesc.value=b.description||""; const links=normalizeLinks(b.links); linkEditor.innerHTML=links.map((l,i)=>`<div class="link-row"><input value="${l.type}" readonly><input id="linkLabel${i}" value="${l.label||""}"><input id="linkUrl${i}" value="${l.url||""}" placeholder="${l.type}链接"></div>`).join(""); }
+    function applyBrandForm(){ const b=currentBrand(); if(!b) return; b.id=brandId.value.trim()||("brand_"+Date.now()); b.name=brandName.value; b.brand=brandBrand.value; b.category=brandCategory.value; b.icon=brandIcon.value; b.color=brandColor.value; b.logo=brandLogo.value; b.description=brandDesc.value; b.links=ORDERED_LINKS.map((meta,i)=>({type:meta[0],label:document.getElementById("linkLabel"+i).value,icon:meta[2],url:document.getElementById("linkUrl"+i).value})); renderBrandList(); toast("已应用到当前品牌，记得点击保存品牌墙配置"); }
+    function addBrand(){ collectBase(); config.brands.push({id:"brand_"+Date.now(),name:"新品牌",brand:"新品牌",category:"分类",icon:"▣",logo:"",color:"#6aa7ff",description:"品牌介绍",links:normalizeLinks([])}); selectedIndex=config.brands.length-1; renderConfig(); }
+    function deleteBrand(){ if(!confirm("确定删除当前品牌吗？")) return; config.brands.splice(selectedIndex,1); selectedIndex=Math.max(0,selectedIndex-1); renderConfig(); }
+
+    async function fileToDataUrl(file){ return new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file); }); }
+    qrUpload.onchange=async e=>{ const file=e.target.files[0]; if(!file) return; receptionQr.value=await fileToDataUrl(file); qrPreview.src=receptionQr.value; toast("二维码已载入，记得保存配置"); };
+    logoUpload.onchange=async e=>{ const file=e.target.files[0]; if(!file) return; brandLogo.value=await fileToDataUrl(file); logoPreview.src=brandLogo.value; toast("Logo已载入，记得应用并保存配置"); };
+
+    async function saveConfig(){ collectBase(); applyBrandForm(); localStorage.setItem(CONFIG_CACHE_KEY,JSON.stringify(config)); try{ const res=await fetch("/api/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(config)}); const payload=await res.json(); if(!res.ok||!payload.ok) throw new Error(payload.error||"保存失败"); toast("品牌墙配置已保存到云端"); }catch(e){ toast("云端暂不可用，已保存到本地缓存"); } }
+
+    async function loadApplications(){ try{ const res=await fetch("/api/applications",{cache:"no-store"}); const payload=await res.json(); if(!res.ok||!payload.ok) throw new Error(payload.error); renderApplications(payload.data||[]); }catch(e){ renderApplications(JSON.parse(localStorage.getItem(APPLY_LOCAL_KEY)||"[]")); } }
+    function renderApplications(rows){ applicationRows.innerHTML=rows.length?rows.map(r=>`<tr><td>${formatTime(r.createdAt)}</td><td><b>${r.company||""}</b></td><td>${r.contact||""}</td><td>${r.phone||""}</td><td>${r.wechat||""}</td><td>${r.title||""}</td><td>${r.demand||""}</td></tr>`).join(""):`<tr><td colspan="7">暂无申请信息</td></tr>`; }
+    function downloadApplications(){ const rows=[["提交时间","公司名称","联系人","联系电话","微信","职务","需求"]]; document.querySelectorAll("#applicationRows tr").forEach(tr=>{ const cols=[...tr.children].map(td=>td.innerText); if(cols.length===7) rows.push(cols); }); downloadCsv(rows,"partner-applications.csv"); }
+
+    function emptyStats(){ return {zoneViews:{},generatedShares:{},shareOpens:{}}; }
+    function getLocalStats(){ try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||emptyStats()}catch(e){return emptyStats()} }
+    function normalizeLocalStats(stats){ const shareVisitors={}; Object.values(stats.shareOpens||{}).forEach(item=>{ if(!shareVisitors[item.zoneId]) shareVisitors[item.zoneId]={clicks:0,people:0}; shareVisitors[item.zoneId].clicks+=item.clicks||0; shareVisitors[item.zoneId].people+=peopleCount(item.visitors); }); return {mode:"local",zoneViews:stats.zoneViews||{},generatedShares:stats.generatedShares||{},shareOpens:stats.shareOpens||{},shareVisitors}; }
+    async function getCloudStats(){ const ids=(config.brands||[]).map(z=>z.id).join(","); const res=await fetch(`/api/stats?zones=${encodeURIComponent(ids)}`,{cache:"no-store"}); const p=await res.json(); if(!res.ok||!p.ok) throw new Error(p.error||"云端统计读取失败"); return p.data; }
+    function aggregateByZone(stats,id){ if(stats.shareVisitors&&stats.shareVisitors[id]) return stats.shareVisitors[id]; let clicks=0,people=0; Object.values(stats.shareOpens||{}).filter(x=>x.zoneId===id).forEach(x=>{ clicks+=x.clicks||0; people+=typeof x.visitorCount==="number"?x.visitorCount:peopleCount(x.visitors); }); return {clicks,people}; }
+    async function refreshStats(){ try{ const s=await getCloudStats(); currentMode="cloud"; modeNotice.innerHTML="当前正在显示 <b>云端统一统计数据</b>。"; renderStats(s); }catch(e){ currentMode="local"; modeNotice.innerHTML=`云端统计暂未启用，当前显示 <b>本地演示数据</b>。<br><span>${e.message||""}</span>`; renderStats(normalizeLocalStats(getLocalStats())); } }
+    function renderStats(stats){ const shares=Object.values(stats.generatedShares||{}); const opens=Object.values(stats.shareOpens||{}); let totalZoneViews=0,totalShareClicks=0,totalShareVisitors=0; Object.values(stats.zoneViews||{}).forEach(r=>totalZoneViews+=r.views||0); opens.forEach(r=>{ totalShareClicks+=r.clicks||0; totalShareVisitors+=typeof r.visitorCount==="number"?r.visitorCount:peopleCount(r.visitors); }); summary.innerHTML=`<div class="card"><strong>${totalZoneViews}</strong><span>区域浏览点击数</span></div><div class="card"><strong>${shares.length}</strong><span>已生成分享链接</span></div><div class="card"><strong>${totalShareClicks}</strong><span>分享链接打开次数</span></div><div class="card"><strong>${totalShareVisitors}</strong><span>分享触达人数</span></div>`; zoneRows.innerHTML=(config.brands||[]).map(z=>{ const v=(stats.zoneViews||{})[z.id]||{}; const a=aggregateByZone(stats,z.id); return `<tr><td><b>${z.name}</b><div>${z.category||""}</div></td><td>${z.brand||""}</td><td class="num">${v.views||0}</td><td class="num">${v.uniqueVisitorCount||peopleCount(v.uniqueVisitors)}</td><td class="num">${a.clicks}</td><td class="num">${a.people}</td><td>${formatTime(v.lastViewAt)}</td></tr>`; }).join(""); shareRows.innerHTML=shares.length?shares.map(share=>{ const open=(stats.shareOpens||{})[share.shareId]||{}; const z=zoneById(share.zoneId); const url=new URL("index.html",location.href); url.searchParams.set("zone",share.zoneId); url.searchParams.set("share",share.shareId); return `<tr><td><b>${share.shareId}</b></td><td>${z?z.name:share.zoneId}</td><td class="num">${open.clicks||0}</td><td class="num">${open.visitorCount||peopleCount(open.visitors)}</td><td>${formatTime(share.createdAt)}</td><td>${formatTime(open.lastOpenAt)}</td><td><button class="btn" onclick="copyText('${url.toString()}')">复制</button></td></tr>`; }).join(""):`<tr><td colspan="7">暂无分享链接</td></tr>`; }
+    function exportData(format){ if(currentMode==="cloud"){ const ids=(config.brands||[]).map(z=>z.id).join(","); location.href=`/api/export?format=${format}&zones=${encodeURIComponent(ids)}`; return; } const blob=new Blob([JSON.stringify(normalizeLocalStats(getLocalStats()),null,2)],{type:"application/json"}); downloadBlob(blob,"partner-wall-stats-local.json"); }
+    function downloadBlob(blob,name){ const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url); }
+    function downloadCsv(rows,name){ const csv=rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\n"); downloadBlob(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}),name); }
+    function copyText(t){ navigator.clipboard?.writeText(t).then(()=>toast("已复制")); }
+    loadConfig().then(()=>refreshStats());
+  </script>
+</body>
+</html>
